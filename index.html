@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ChattyBJ</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+    <div class="chat-container">
+        <h1>ChattyBJ 💬</h1>
+        <div class="user-setup">
+            <input id="username" placeholder="Enter your name"/>
+            <button onclick="setName()">Set Name</button>
+        </div>
+        <ul id="messages"></ul>
+        <input id="input" placeholder="Type a message..." autocomplete="off"/>
+        <button onclick="send()">Send</button>
+    </div>
+
+    <script>
+        const socket = io();
+
+        const input = document.getElementById('input');
+        const messages = document.getElementById('messages');
+        const usernameInput = document.getElementById('username');
+
+        function setName() {
+            const name = usernameInput.value.trim();
+            socket.emit('set name', name);
+            usernameInput.disabled = true;
+        }
+
+        socket.on('chat message', ({msg, name}) => {
+            const li = document.createElement('li');
+            li.textContent = name + ': ' + msg;
+            messages.appendChild(li);
+            messages.scrollTop = messages.scrollHeight;
+        });
+
+        function send() {
+            const msg = input.value.trim();
+            if(msg) {
+                socket.emit('chat message', msg);
+                input.value = '';
+            }
+        }
+    </script>
+</body>
+</html>
